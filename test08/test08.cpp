@@ -9,17 +9,40 @@ struct Process{
 	int Am, Bm, Cm;
 };
 
-int available[3];
-int Need[5][3];
-Process p[5];
-string SafeSequence = "";
-
-void input()
+void BankersAlgorithm()
 {
+	string SafeSequence = "";
+	int count = 0;
+	int iterator;
+	int temp;
+
+	int numberOfProcess;
+	cout << "Enter the number of process: ";
+	cin >> numberOfProcess;
+
+	int* available = new int[3];
+	Process* p = new Process[numberOfProcess];
+	
+	int** Need = new int* [numberOfProcess];
+	for (int i = 0; i < numberOfProcess; i++)
+	{
+		Need[i] = new int[3];
+	}
+
+	int** Work = new int* [numberOfProcess];
+	for (int i = 0; i < numberOfProcess; i++)
+	{
+		Work[i] = new int[3];
+	}
+
 	cout << "Enter the A B C for available: ";
 	cin >> available[0] >> available[1] >> available[2];
 
-	for (int i = 0; i < 5; i++)
+	Work[0][0] = available[0];
+	Work[0][1] = available[1];
+	Work[0][2] = available[2];
+
+	for (int i = 0; i < numberOfProcess; i++)
 	{
 		cout << "Enter A B C for allocation of P" << i << ": " << endl;
 		cin >> p[i].Aa >> p[i].Ba >> p[i].Ca;
@@ -33,18 +56,14 @@ void input()
 		Need[i][1] = p[i].Bm - p[i].Ba;
 		Need[i][2] = p[i].Cm - p[i].Ca;
 	}
-}
 
-void calculation()
-{
-	int temp;
-	int count1 = 0;
+	iterator = 1;
 
-	while (count1 < 5)
+	while (count < numberOfProcess)
 	{
 		temp = 0;
 
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < numberOfProcess; i++)
 		{
 			bool condition1 = Need[i][0] <= available[0];
 			bool condition2 = Need[i][1] <= available[1];
@@ -57,9 +76,17 @@ void calculation()
 				available[1] += p[i].Ba;
 				available[2] += p[i].Ca;
 
+				if (iterator < numberOfProcess)
+				{
+					Work[iterator][0] = available[0];
+					Work[iterator][1] = available[1];
+					Work[iterator][2] = available[2];
+					iterator++;
+				}
+
 				SafeSequence += p[i].process + " ";
 				p[i].notChecked = false;
-				count1++;
+				count++;
 				temp++;
 			}
 		}
@@ -68,19 +95,37 @@ void calculation()
 			break;
 	}
 
-	if (temp == 0)
-		cout << "Dead Lock exists in the sequence.";
+	cout << endl << "Process \t Allocation \t Max \t Available(Work) \t Need" << endl;
+	for (int i = 0; i < numberOfProcess; i++)
+	{
+		cout << p[i].process << "   \t\t" << p[i].Aa << " " <<
+			p[i].Ba << " " << p[i].Ca << "\t\t" << p[i].Am << " " <<
+			p[i].Bm << " " << p[i].Cm << "\t\t" << Work[i][0] << " " <<
+			Work[i][1] << " " << Work[i][2] << "\t\t" << Need[i][0] << " "
+			<< Need[i][1] << " " << Need[i][2] << endl;
+	}
+
+	if (temp == 0 && count < numberOfProcess)
+		cout << endl << "Dead Lock exists in the sequence.";
 	else
-		cout << "Safe Sequence: " << SafeSequence << endl;
+		cout << endl << "Safe Sequence: " << SafeSequence << endl;
 
+	for (int i = 0; i < numberOfProcess; i++) 
+	{
+		delete[] Need[i];
+	}
+	for (int i = 0; i < numberOfProcess; i++) {
+		delete[] Work[i];
+	}
+	delete[] Work;
+	delete[] Need;
+	delete[] available;
+	delete[] p;
 }
-
 
 int main()
 {
-	input();
-	calculation();
-
+	BankersAlgorithm();
 	system("pause>0");
 	return 0;
 }
